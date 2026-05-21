@@ -1,0 +1,75 @@
+  name: Deploy
+
+  on:
+    push:
+      branches: [main]
+    workflow_dispatch:
+
+  jobs:
+    deploy:
+      uses: sistem-analizi/ci/.github/workflows/deploy.yml@v1
+      with:
+        build_type: php
+        year: '2026'
+        php_version: '8.2'
+        node_version: '20'
+
+        build_command: |
+          set -e
+
+          # ─── 1) Production .env'i secret'tan yaz ─────────────────────────
+          if [ -n "${LARAVEL_ENV:-}" ]; then
+            printf '%s' "$LARAVEL_ENV" > .env
+            echo ".env written from LARAVEL_ENV secret"
+          else
+            echo "::error::LARAVEL_ENV secret not set"
+            exit 1
+          fi
+
+          # ─── 2) Composer install ─────────────────────────────────────────
+          composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction
+
+          # ─── 3) APP_KEY: .env'de yoksa üret ──────────────────────────────
+          if ! grep -q '^APP_KEY=base64:' .env; then
+            php artisan key:generate --force --no-interaction
+          fi
+
+          # ─── 4) Frontend asset build (Vite) ─────────────────────────────
+          if [ -f package.json ]; then
+            npm install --no-audit --no-fund
+            npm run build
+          fi
+
+          # NOT: Cache komutları (route:cache vb.) BİLEREK çalıştırılmıyor.
+          # HTTP context dışında üretilen cache dosyaları subpath deploy'da
+          # buggy oluyor (MethodNotAllowed hatası). deploy-hook.php cache
+          # CLEAR komutlarını sigortalı olarak çalıştırıyor.
+
+          # ─── 5) Vendor'ı tek zip dosyaya paketle ────────────────────────
+          echo "Zipping vendor/ ..."
+          zip -qr vendor.zip vendor/
+          ls -lh vendor.zip
+          rm -rf vendor/
+
+        exclude: |
+          vendor
+          database/database.sqlite
+          *.sqlite
+          *.sqlite-journal
+          storage/logs
+          storage/framework/cache
+          storage/framework/sessions
+          storage/framework/views
+          tests
+          phpunit.xml
+          .editorconfig
+          laravel_projem.txt
+          res.json())
+
+        clean_slate: false
+  
+        forward_secrets: LARAVEL_ENV, DEPLOY_HOOK_KEY
+
+        post_deploy_hook_url: https://proje.kamilakgun.com.tr/2026/ilac-takip-sistemi/deploy-hook.php
+
+      secrets: inherit
