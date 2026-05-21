@@ -14,17 +14,15 @@ class IlacSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Önce bir örnek kullanıcı oluşturuyoruz (İlaçların eklenebilmesi için zorunlu)
         $kullaniciId = DB::table('kullanicilar')->insertGetId([
             'ad_soyad' => 'Test Hastası',
             'eposta' => 'hasta@test.com',
-            'sifre' => Hash::make('123456'), // Şifreyi şifreleyerek kaydediyoruz
+            'sifre' => Hash::make('123456'),
             'rol' => 'hasta',
             'olusturulma_tarihi' => now(),
             'guncellenme_tarihi' => now(),
         ]);
 
-        // 2. Oluşturduğumuz bu kullanıcının ID'sini kullanarak ilaçları ekliyoruz
         DB::table('ilaclar')->insert([
             [
                 'kullanici_id' => $kullaniciId,
