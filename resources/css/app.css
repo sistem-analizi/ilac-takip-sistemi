@@ -1,0 +1,43 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* =========================================
+   GLOBAL DEĞİŞKENLER (BURAYA YAPIŞTIRDIN)
+   ========================================= */
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1e3a8a;
+    --primary-light: #60a5fa;
+    --bs-primary: #2563eb;
+    --bs-primary-rgb: 37, 99, 235;
+
+    --bg-canvas: #f8fafc;
+    --bg-surface: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+
+    --sidebar-width: 280px;
+    --sidebar-mini-width: 90px;
+}
+
+[data-bg-mode="dark"] {
+    --bg-canvas: #15202b;
+    --bg-surface: #1e2732;
+    --text-main: #ffffff;
+    --text-muted: #cbd5e1;
+    --border-color: #38444d;
+}
+
+[data-theme="emerald"] { --primary: #059669; --primary-dark: #064e3b; --primary-light: #34d399; --bs-primary: #059669; --bs-primary-rgb: 5, 150, 105; }
+[data-theme="ruby"] { --primary: #e11d48; --primary-dark: #881337; --primary-light: #fb7185; --bs-primary: #e11d48; --bs-primary-rgb: 225, 29, 72; }
+[data-theme="amethyst"] { --primary: #7c3aed; --primary-dark: #4c1d95; --primary-light: #a78bfa; --bs-primary: #7c3aed; --bs-primary-rgb: 124, 58, 237; }
