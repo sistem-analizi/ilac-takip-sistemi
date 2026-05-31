@@ -155,10 +155,7 @@ $commands = [
     'route:clear'   => [],
     'view:clear'    => [],
     'event:clear'   => [],
-    'config:cache'  => [],
-    'route:cache'   => [],
-    'view:cache'    => [],
-    'event:cache'   => [],
+    'db:seed'       => [],
 ];
 
 $allOk = true;
