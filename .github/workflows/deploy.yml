@@ -67,7 +67,7 @@
           res.json())
 
         clean_slate: false
-  
+
         forward_secrets: LARAVEL_ENV, DEPLOY_HOOK_KEY
 
         post_deploy_hook_url: https://proje.kamilakgun.com.tr/2026/ilac-takip-sistemi/deploy-hook.php
