@@ -38,8 +38,3 @@ Route::controller(IlacController::class)->group(function () {
     Route::put('/ilac-guncelle/{id}', 'update')->name('ilac.update');
     Route::post('/bolme-temizle/{bolme_id}', 'temizle')->name('bolme.temizle');
 });
-
-Route::get('/veritabani-coz', function() {
-    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'BolmeSeeder']);
-    return "Bölmeler başarıyla veritabanına eklendi!";
-});
