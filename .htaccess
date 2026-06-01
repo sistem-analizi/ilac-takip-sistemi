@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Deploy hook'u public/'e rewrite ETME — kök dizinden çalıştır.
+    # vendor/autoload.php ve .env burada (proje kökünde), public/'de değil.
+    RewriteRule ^deploy-hook\.php$ - [L]
+
+    # Eğer dosya/klasör doğrudan public/'in altındaysa, oradan servis et
+    RewriteCond %{REQUEST_URI} !^.*/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

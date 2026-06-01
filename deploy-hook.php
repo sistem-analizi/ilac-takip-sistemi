@@ -49,6 +49,19 @@ echo "════════════════════════�
 echo "  Deploy hook starting — " . date('Y-m-d H:i:s') . "\n";
 echo "═══════════════════════════════════════════════════════\n\n";
 
+// ────────── basePath fix ──────────
+// public/index.php aynı düzeltmeyi yapıyor. Hook ayrı bir entrypoint olduğu
+// için burada da uygulamamız lazım — yoksa Console Kernel bootstrap sırasında
+// (PackageManifest::build vb.) Laravel URL/base path'i yanlış initialize edip
+// buggy cache yazıyor → ana proje 405 dönüyor.
+$basePath = read_env_value($envPath, 'APP_BASE_PATH');
+if ($basePath) {
+    $basePath = '/' . trim($basePath, '/');
+    $_SERVER['SCRIPT_NAME'] = $basePath . '/index.php';
+    $_SERVER['PHP_SELF']    = $basePath . '/index.php';
+    $_SERVER['REQUEST_URI'] = $basePath . '/';
+}
+
 chdir(__DIR__);
 
 // ────────── 3) vendor.zip extract (varsa) ──────────
@@ -148,14 +161,13 @@ if (is_link($storageLink) || file_exists($storageLink)) {
 }
 echo "\n";
 
-// ────────── 7) Diğer artisan komutları ──────────
+// ────────── 7) Artisan komutları ──────────
+//
+// SADECE migrate. *:clear komutları KALDIRILDI — Kernel::call() bootstrap'i
+// HTTP context'te buggy cache yazıyordu. Cache temizliği aşağıda (adım 8)
+// fiziksel unlink ile yapılıyor (artisan'a hiç gitmeden).
 $commands = [
-    'migrate'       => ['--force' => true],
-    'config:clear'  => [],
-    'route:clear'   => [],
-    'view:clear'    => [],
-    'event:clear'   => [],
-    'db:seed'       => [],
+    'migrate' => ['--force' => true],
 ];
 
 $allOk = true;
@@ -176,6 +188,25 @@ foreach ($commands as $cmd => $opts) {
     }
     echo "\n";
 }
+
+// ────────── 8) bootstrap/cache fiziksel temizlik ──────────
+// Hook'un Console Kernel bootstrap'i (migrate vb. çalışırken) sırasında
+// PackageManifest / config / route cache dosyalarını HTTP context'te
+// yazıyor olabilir. Hook bittikten SONRA bunları fiziksel olarak silelim
+// ki app bir sonraki HTTP request'te cache'siz (runtime'da) yüklensin.
+// packages.php ve services.php tutuluyor — bunlar package:discover'ın
+// ürünü, kritik değil.
+echo "→ bootstrap/cache physical wipe\n";
+$wiped = 0;
+foreach (glob(__DIR__ . '/bootstrap/cache/*.php') ?: [] as $f) {
+    $base = basename($f);
+    if ($base === 'packages.php' || $base === 'services.php') continue;
+    if (@unlink($f)) {
+        echo "    ✓ removed $base\n";
+        $wiped++;
+    }
+}
+echo "  $wiped file(s) removed\n\n";
 
 echo "═══════════════════════════════════════════════════════\n";
 echo "  Deploy hook completed — " . date('Y-m-d H:i:s') . "\n";
@@ -222,9 +253,9 @@ function read_env_value(string $path, string $key): ?string
         // Çevreleyen tırnakları sıyır
         $len = strlen($v);
         if ($len >= 2 && (
-                ($v[0] === '"' && $v[$len - 1] === '"') ||
-                ($v[0] === "'" && $v[$len - 1] === "'")
-            )) {
+            ($v[0] === '"' && $v[$len - 1] === '"') ||
+            ($v[0] === "'" && $v[$len - 1] === "'")
+        )) {
             $v = substr($v, 1, -1);
         }
         return $v;
