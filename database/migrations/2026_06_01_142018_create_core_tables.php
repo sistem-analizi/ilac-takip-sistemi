@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up()
     {
-        // 1. Cihazlar Tablosu
         Schema::create('cihazlar', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('kullanici_id')->nullable();
@@ -18,7 +17,6 @@ return new class extends Migration
             $table->timestamp('guncellenme_tarihi')->nullable();
         });
 
-        // 2. İlaçlar Tablosu
         Schema::create('ilaclar', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('kullanici_id')->nullable();
@@ -28,7 +26,6 @@ return new class extends Migration
             $table->timestamp('guncellenme_tarihi')->nullable();
         });
 
-        // 3. Bölmeler Tablosu
         Schema::create('bolmeler', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('cihaz_id')->nullable();
@@ -40,19 +37,17 @@ return new class extends Migration
             $table->timestamp('guncellenme_tarihi')->nullable();
         });
 
-        // 4. Zamanlamalar Tablosu (gunler sütunu doğrudan buraya eklendi)
         Schema::create('zamanlamalar', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('bolme_id');
             $table->unsignedBigInteger('ilac_id');
             $table->time('alinacak_saat');
-            $table->json('gunler')->nullable(); // Json formatında günleri tutacak
+            $table->json('gunler')->nullable();
             $table->boolean('aktif_mi')->default(0);
             $table->timestamp('olusturulma_tarihi')->nullable();
             $table->timestamp('guncellenme_tarihi')->nullable();
         });
 
-        // 5. Sistem Kayıtları Tablosu
         Schema::create('sistem_kayitlari', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('cihaz_id')->nullable();
