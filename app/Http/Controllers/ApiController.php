@@ -34,9 +34,9 @@ class ApiController extends Controller
                 SistemKaydi::create([
                     'cihaz_id' => $bolme->cihaz_id,
                     'bolme_id' => $bolme->id,
-                    'ilac_adi' => $zamanlama->ilac->ilac_adi, // YENİ EKLENDİ
-                    'dozaj' => $zamanlama->ilac->dozaj,       // YENİ EKLENDİ
-                    'planlanan_saat' => $zamanlama->alinacak_saat, // YENİ EKLENDİ
+                    'ilac_adi' => $zamanlama->ilac->ilac_adi,
+                    'dozaj' => $zamanlama->ilac->dozaj,
+                    'planlanan_saat' => $zamanlama->alinacak_saat,
                     'durum' => 'Sanal butondan onaylandı'
                 ]);
                 return response()->json(['status' => 'success']);

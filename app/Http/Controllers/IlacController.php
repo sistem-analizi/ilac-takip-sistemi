@@ -26,7 +26,7 @@ class IlacController extends Controller
     {
         $request->validate([
             'bolme_id' => 'required|exists:bolmeler,id',
-            'ilac_id' => 'required|exists:ilaclar,id', // Sadece ID'yi alıyoruz
+            'ilac_id' => 'required|exists:ilaclar,id',
             'alinacak_saat' => 'required',
             'gunler' => 'required|array|min:1',
         ]);
@@ -46,7 +46,7 @@ class IlacController extends Controller
     {
         $zamanlama = Zamanlama::where('bolme_id', $bolme_id)->first();
         if ($zamanlama) {
-            $zamanlama->delete(); // Ana ilacı değil SADECE zamanlamayı (kutu planını) siliyoruz!
+            $zamanlama->delete();
             return redirect()->route('ilac.index')->with('success', 'Bölme başarıyla boşaltıldı!');
         }
         return redirect()->route('ilac.index')->with('error', 'Bu bölme zaten boş.');
